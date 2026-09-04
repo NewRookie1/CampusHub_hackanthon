@@ -1,0 +1,377 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  passwordHash  String
+  role          String       @default("STUDENT")
+  firstName     String
+  lastName      String
+  avatarUrl     String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  studentProfile    StudentProfile?
+  companyProfile    CompanyProfile?
+  resumes           Resume[]
+  matchResults      MatchResult[]
+  interviewSessions InterviewSession[]
+  schedules         Schedule[]
+  skillGraphs       SkillGraph[]
+  mockTests         MockTest[]
+  mockTestResults   MockTestResult[]
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String?
+  university      String?
+  graduationYear  Int?
+  major           String?
+  linkedinUrl     String?
+  githubUrl       String?
+  portfolioUrl    String?
+  currentRole     String?
+  targetRoles     String   @default("[]")
+  preferredLocations String @default("[]")
+  skills          StudentSkill[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("student_profiles")
+}
+
+model CompanyProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName     String
+  description     String?
+  website         String?
+  industry        String?
+  size            String?
+  location        String?
+  logoUrl         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  opportunities   Opportunity[]
+
+  @@map("company_profiles")
+}
+
+model Skill {
+  id          String         @id @default(cuid())
+  name        String         @unique
+  normalizedName String      @unique
+  category    String         @default("OTHER")
+  description String?
+  aliases     String         @default("[]")
+  relatedSkills SkillRelation[] @relation("SkillRelations")
+  relatedTo   SkillRelation[] @relation("RelatedSkills")
+  roleSkills  RoleSkill[]
+  studentSkills StudentSkill[]
+  resumeSkills ResumeSkill[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("skills")
+}
+
+model SkillRelation {
+  id           String   @id @default(cuid())
+  skillId      String
+  skill        Skill    @relation("SkillRelations", fields: [skillId], references: [id], onDelete: Cascade)
+  relatedSkillId String
+  relatedSkill Skill    @relation("RelatedSkills", fields: [relatedSkillId], references: [id], onDelete: Cascade)
+  relationType String   @default("related_to")
+  strength     Float    @default(1.0)
+
+  @@unique([skillId, relatedSkillId])
+  @@map("skill_relations")
+}
+
+model Role {
+  id           String      @id @default(cuid())
+  title        String      @unique
+  description  String?
+  category     String?
+  level        String?
+  requiredSkills RoleSkill[]
+  skillGaps    SkillGap[]
+  schedules    Schedule[]
+  interviewSessions InterviewSession[]
+  skillGraphs  SkillGraph[]
+  roadmaps     Roadmap[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("roles")
+}
+
+model RoleSkill {
+  id           String   @id @default(cuid())
+  roleId       String
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  skillId      String
+  skill        Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency  String   @default("INTERMEDIATE")
+  isRequired   Boolean  @default(true)
+  weight       Float    @default(1.0)
+  order        Int      @default(0)
+
+  @@unique([roleId, skillId])
+  @@map("role_skills")
+}
+
+model StudentSkill {
+  id            String           @id @default(cuid())
+  studentProfileId String
+  studentProfile StudentProfile  @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  skillId       String
+  skill         Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency   String           @default("BEGINNER")
+  yearsExperience Float?
+  projects      String           @default("[]")
+  certifications String          @default("[]")
+  verified      Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([studentProfileId, skillId])
+  @@map("student_skills")
+}
+
+model Resume {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName      String
+  fileUrl       String
+  fileSize      Int
+  mimeType      String
+  parsedText    String?
+  extractedSkills ResumeSkill[]
+  skillGaps     SkillGap[]
+  matchResults  MatchResult[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("resumes")
+}
+
+model ResumeSkill {
+  id          String           @id @default(cuid())
+  resumeId    String
+  resume      Resume           @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  skillId     String
+  skill       Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency String           @default("BEGINNER")
+  confidence  Float            @default(0.8)
+  context     String?
+  createdAt   DateTime         @default(now())
+
+  @@unique([resumeId, skillId])
+  @@map("resume_skills")
+}
+
+model SkillGap {
+  id             String   @id @default(cuid())
+  resumeId       String
+  resume         Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  roleId         String
+  role           Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  missingSkills  String   @default("[]")
+  weakSkills     String   @default("[]")
+  prioritySkills String   @default("[]")
+  coverageScore  Float
+  recommendations String @default("[]")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("skill_gaps")
+}
+
+model Opportunity {
+  id              String          @id @default(cuid())
+  companyProfileId String
+  companyProfile  CompanyProfile  @relation(fields: [companyProfileId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  type            String          @default("INTERNSHIP")
+  category        String
+  requirements    String          @default("[]")
+  requiredSkills  String          @default("[]")
+  preferredSkills String          @default("[]")
+  location        String
+  isRemote        Boolean         @default(false)
+  salaryMin       Int?
+  salaryMax       Int?
+  currency        String          @default("INR")
+  deadline        DateTime?
+  startDate       DateTime?
+  duration        String?
+  status          String          @default("active")
+  tags            String          @default("[]")
+  matchResults    MatchResult[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@map("opportunities")
+}
+
+model MatchResult {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunityId   String
+  opportunity     Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  resumeId        String?
+  resume          Resume?     @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  matchScore      Float
+  matchingSkills  String      @default("[]")
+  missingSkills   String      @default("[]")
+  experienceMatch String      @default("{}")
+  recommendation  String
+  status          String      @default("PENDING")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("match_results")
+}
+
+model Roadmap {
+  id          String   @id @default(cuid())
+  roleId      String
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  steps       String   @default("[]")
+  duration    String?
+  difficulty  String?
+  isOfficial  Boolean  @default(false)
+  schedules   Schedule[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roadmaps")
+}
+
+model Schedule {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId          String
+  role            Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roadmapId       String?
+  roadmap         Roadmap? @relation(fields: [roadmapId], references: [id], onDelete: SetNull)
+  title           String
+  description     String?
+  totalDays       Int
+  hoursPerDay     Float
+  startDate       DateTime
+  endDate         DateTime
+  scheduleData    String   @default("[]")
+  status          String   @default("active")
+  progress        Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("schedules")
+}
+
+model InterviewSession {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId          String?
+  role            Role?    @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  stage           String   @default("HR_INTERVIEW")
+  status          String   @default("IN_PROGRESS")
+  currentQuestion Int      @default(0)
+  totalScore      Float    @default(0)
+  questions       String   @default("[]")
+  evaluations     String   @default("[]")
+  feedback        String?
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("interview_sessions")
+}
+
+model SkillGraph {
+  id          String   @id @default(cuid())
+  roleId      String
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  nodes       String   @default("[]")
+  edges       String   @default("[]")
+  metadata    String   @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("skill_graphs")
+}
+
+model MockTest {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examType      String
+  subject       String
+  difficulty    String   @default("medium")
+  totalQuestions Int     @default(0)
+  timeLimitMinutes Int  @default(60)
+  status        String   @default("NOT_STARTED")
+  startedAt     DateTime?
+  completedAt   DateTime?
+  totalScore    Float?
+  maxScore      Float?
+  percentage    Float?
+  timeTaken     Int?
+  questions     String   @default("[]")
+  answers       String   @default("[]")
+  feedback      String?
+  metadata      String   @default("{}")
+  results       MockTestResult[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("mock_tests")
+}
+
+model MockTestResult {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mockTestId    String
+  mockTest      MockTest @relation(fields: [mockTestId], references: [id], onDelete: Cascade)
+  questionIndex Int
+  question      String
+  questionType  String   @default("MCQ")
+  options       String   @default("[]")
+  correctAnswer String
+  userAnswer    String?
+  isCorrect     Boolean?
+  score         Float?
+  maxScore      Float?
+  explanation   String?
+  timeTaken     Int?
+  createdAt     DateTime @default(now())
+
+  @@map("mock_test_results")
+}

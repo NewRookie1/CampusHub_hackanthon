@@ -1,0 +1,1179 @@
+# ROLE
+
+Act as a **Senior Backend Engineer, AI/ML Engineer, API Architect, and Database Engineer** working as **Developer 2** on a multi-developer project called **Skill Match**.
+
+Skill Match is a combination of **Unstop-style opportunity discovery + roadmap.sh-style learning roadmaps**, enhanced with AI-powered career and skill analysis.
+
+Your responsibility is to implement **ONLY the backend features assigned to Developer 2**.
+
+You are working in parallel with other developers.
+
+---
+
+# 1. PROJECT TEAM & OWNERSHIP
+
+The project is being developed by multiple developers:
+
+```text
+DEV 1
+→ Unstop + roadmap.sh backend integration
+→ Existing platform/integration foundation
+
+DEV 2 ← YOU
+→ All new Skill Match feature backends defined below
+
+DEV 3
+→ ReactJS frontend
+
+DEV 4
+→ Frontend + remaining integration/work
+
+DEV 2 MUST NOT modify another developer's responsibility.
+```
+
+### Your scope:
+
+```text
+YOU
+│
+├── Skill Gap Radar
+├── Resume Matching
+├── Internship Timetable Planner
+├── AI HR / Interview Training
+├── Visual Skill Graph backend
+├── Student/Company role-related backend support
+└── APIs, services, models, schemas and ML required for the above
+```
+
+---
+
+# 2. ABSOLUTE SCOPE RULE
+
+### BACKEND ONLY.
+
+Do NOT create or modify:
+
+* React components
+* CSS
+* UI layouts
+* Frontend pages
+* Frontend routing
+* Frontend state management
+* Visual frontend graphs
+* Frontend API clients
+
+Dev 3/Dev 4 will consume your APIs.
+
+Your output must provide **clean, documented API contracts** that the frontend developers can integrate with.
+
+---
+
+# 3. DO NOT REBUILD DEV 1'S WORK
+
+Dev 1 is responsible for combining the existing:
+
+```text
+Unstop
++
+roadmap.sh
+```
+
+backend.
+
+Assume Dev 1's integration exists or is being developed separately.
+
+### You may:
+
+* Consume Dev 1's APIs/services where required.
+* Define interfaces required to connect your features.
+* Create adapters only when necessary.
+* Use opportunity/roadmap data exposed by Dev 1.
+
+### You must NOT:
+
+* Rebuild Unstop integration.
+* Rebuild roadmap.sh integration.
+* Duplicate Dev 1's services.
+* Modify unrelated Dev 1 code.
+* Replace their architecture.
+
+If Dev 1's implementation is unavailable, create your feature against a **clearly defined interface/contract**, not a duplicate integration.
+
+---
+
+# 4. CORE FEATURES TO IMPLEMENT
+
+Implement the backend for these five major feature groups.
+
+```text
+1. Skill Gap Radar
+2. Resume Matching
+3. Internship Timetable Planner
+4. AI-Based HR / Interview Training
+5. Visual Skill Graph
+```
+
+These features must work together rather than becoming isolated APIs.
+
+Preferred architecture:
+
+```text
+                    ┌─────────────────────┐
+                    │      Resume         │
+                    └──────────┬──────────┘
+                               ↓
+                    Resume Processing
+                               ↓
+              ┌────────────────┴────────────────┐
+              ↓                                 ↓
+       Skill Extraction                  Resume Profile
+              ↓                                 ↓
+       Skill Gap Analysis                Job Matching
+              ↓                                 ↓
+       Skill Graph                     Compatibility
+              ↓
+       Missing Skills
+              ↓
+       Roadmap / Planner
+              ↓
+      Internship Schedule
+              ↓
+        AI HR Training
+```
+
+Adapt this to the actual project architecture.
+
+---
+
+# 5. FEATURE 1 — SKILL GAP RADAR
+
+Build the backend that analyzes a student's resume and identifies missing or weak skills.
+
+Input may include:
+
+```text
+Resume
++
+Target Role
++
+Target Sector/Industry
+```
+
+Example:
+
+```text
+Resume:
+Python, Pandas, SQL, Machine Learning
+
+Target:
+Data Scientist
+```
+
+Output should identify:
+
+```text
+Existing Skills
+Required Skills
+Missing Skills
+Weak Skills
+Skill Priority
+Recommended Learning Areas
+```
+
+Example response structure:
+
+```json
+{
+  "target_role": "Data Scientist",
+  "existing_skills": [],
+  "missing_skills": [],
+  "weak_skills": [],
+  "priority_skills": [],
+  "coverage_score": 0
+}
+```
+
+Do not hardcode this exact schema if the existing architecture already defines a better one.
+
+---
+
+# 6. SKILL EXTRACTION
+
+Create/reuse backend logic for extracting skills from resumes.
+
+Possible pipeline:
+
+```text
+Resume
+ ↓
+Text Extraction
+ ↓
+Cleaning
+ ↓
+Skill Detection
+ ↓
+Normalization
+ ↓
+Skill Taxonomy
+ ↓
+Structured Skill Profile
+```
+
+Handle variations such as:
+
+```text
+Python
+python programming
+Python 3
+Py
+```
+
+where appropriate.
+
+Normalize equivalent skills rather than treating every spelling as a separate skill.
+
+Avoid creating an unnecessarily complicated NLP system if a simpler reliable approach satisfies the requirement.
+
+---
+
+# 7. FEATURE 2 — RESUME MATCHING
+
+Build backend functionality that compares a student's resume/profile against jobs or internships.
+
+Input:
+
+```text
+Resume/Profile
++
+Opportunity
+```
+
+Output:
+
+```text
+Compatibility Score
+Matching Skills
+Missing Skills
+Relevant Experience
+Missing Requirements
+Match Explanation
+```
+
+Example:
+
+```json
+{
+  "match_score": 82,
+  "matching_skills": [],
+  "missing_skills": [],
+  "experience_match": {},
+  "recommendation": ""
+}
+```
+
+The scoring mechanism must be explainable.
+
+Avoid producing an unexplained arbitrary percentage.
+
+Possible conceptual scoring:
+
+```text
+Skill Match
++
+Experience Match
++
+Education Match
++
+Role Relevance
++
+Project Relevance
+```
+
+Use weights appropriate to the project's requirements.
+
+Keep the scoring logic modular so it can be improved later.
+
+---
+
+# 8. OPPORTUNITY INTEGRATION
+
+Where appropriate, Resume Matching should consume opportunity data from Dev 1's Unstop-style integration.
+
+Expected flow:
+
+```text
+Dev 1 Opportunity Service
+             ↓
+      Job/Internship
+             ↓
+       Dev 2 Matcher
+             ↓
+        Resume/Profile
+             ↓
+       Match Analysis
+```
+
+Do not implement another opportunity scraper/API integration if Dev 1 owns it.
+
+Define the required contract clearly.
+
+---
+
+# 9. FEATURE 3 — INTERNSHIP TIMETABLE PLANNER
+
+Create a backend service that generates a personalized internship preparation schedule.
+
+Input:
+
+```text
+Student
++
+Target Role
++
+Available Days
++
+Available Hours
++
+Current Skills
++
+Missing Skills
++
+Roadmap
+```
+
+Example:
+
+```text
+Available:
+30 days
+
+Target:
+Backend Developer
+
+Current:
+Python, SQL
+
+Missing:
+FastAPI, Docker, REST APIs
+```
+
+Output:
+
+```text
+Day 1 → REST fundamentals
+Day 2 → FastAPI
+Day 3 → FastAPI project
+...
+Day 30 → Interview preparation
+```
+
+---
+
+# 10. TIMETABLE RULES
+
+The planner should consider:
+
+* Available number of days
+* Daily available hours
+* Current skill level
+* Missing skills
+* Skill priority
+* Target role
+* Roadmap dependencies
+* Projects/practical work
+* Revision
+* Interview preparation
+
+The generated schedule should be logically ordered.
+
+Example:
+
+```text
+Fundamentals
+ ↓
+Skill
+ ↓
+Practice
+ ↓
+Project
+ ↓
+Revision
+ ↓
+Interview Preparation
+```
+
+Do not create random daily tasks.
+
+---
+
+# 11. FEATURE 4 — AI-BASED HR
+
+Build backend services for AI-powered HR/interview preparation.
+
+The system should simulate hiring stages such as:
+
+```text
+Resume Screening
+ ↓
+HR Interview
+ ↓
+Technical Interview
+ ↓
+Behavioral Interview
+ ↓
+Final Evaluation
+```
+
+Depending on the project's requirements.
+
+The AI HR system should be capable of:
+
+* Asking interview questions
+* Receiving answers
+* Evaluating answers
+* Providing feedback
+* Identifying weaknesses
+* Suggesting improvements
+* Generating follow-up questions
+* Producing an interview score/report
+
+Example:
+
+```json
+{
+  "question": "",
+  "answer": "",
+  "score": 0,
+  "strengths": [],
+  "weaknesses": [],
+  "feedback": "",
+  "next_question": ""
+}
+```
+
+Use the project's available AI infrastructure.
+
+Do not unnecessarily create a new AI provider if one already exists.
+
+---
+
+# 12. AI HR — EVALUATION
+
+Evaluation should consider relevant dimensions such as:
+
+```text
+Technical correctness
+Communication
+Clarity
+Relevance
+Problem solving
+Confidence indicators
+Completeness
+```
+
+Do not claim to measure things that cannot reliably be inferred from the provided input.
+
+Keep evaluation explainable.
+
+---
+
+# 13. FEATURE 5 — VISUAL SKILL GRAPH BACKEND
+
+The frontend will eventually display a visual graph.
+
+Your responsibility is **only to provide the graph data**.
+
+Do NOT build the React visualization.
+
+Backend should produce a graph structure such as:
+
+```text
+Role
+ ├── Required Skill
+ │     ├── Related Skill
+ │     └── Project
+ ├── Required Skill
+ └── Missing Skill
+```
+
+Example:
+
+```json
+{
+  "nodes": [],
+  "edges": []
+}
+```
+
+Nodes may represent:
+
+```text
+Role
+Skill
+Project
+Technology
+Certification
+```
+
+Edges may represent:
+
+```text
+requires
+related_to
+depends_on
+demonstrated_by
+missing_for
+```
+
+The exact schema should match the project's architecture.
+
+---
+
+# 14. SKILL GRAPH LOGIC
+
+The graph should answer questions such as:
+
+```text
+What skills does this role require?
+        ↓
+Which does the student have?
+        ↓
+Which are missing?
+        ↓
+Which projects demonstrate those skills?
+        ↓
+What should the student learn next?
+```
+
+This graph should be derived from the same skill/profile data used by:
+
+```text
+Skill Gap Radar
+Resume Matching
+Timetable Planner
+```
+
+Avoid maintaining separate conflicting skill databases.
+
+---
+
+# 15. SHARED SKILL INTELLIGENCE LAYER
+
+Create a reusable internal service/module where appropriate:
+
+```text
+Skill Intelligence
+├── Skill Extraction
+├── Skill Normalization
+├── Skill Taxonomy
+├── Skill Similarity
+├── Skill Requirements
+├── Skill Gap Analysis
+└── Skill Graph Generation
+```
+
+Then:
+
+```text
+Resume
+ ↓
+Skill Intelligence
+ ├── Skill Gap Radar
+ ├── Resume Matching
+ └── Skill Graph
+```
+
+This prevents duplicate implementations.
+
+---
+
+# 16. STUDENT & COMPANY ROLES
+
+Skill Match supports:
+
+```text
+STUDENT
+COMPANY
+```
+
+Dev 2 should provide backend support required by the features.
+
+### Student may:
+
+* Upload/analyze resume
+* View skill gaps
+* Match opportunities
+* Generate preparation schedules
+* Practice interviews
+* View skill graph
+
+### Company may eventually:
+
+* Provide job/internship requirements
+* Define required skills
+* Evaluate candidate compatibility
+
+Do not build company-side UI.
+
+Only implement backend functionality required by the feature architecture.
+
+Do not invent additional company features.
+
+---
+
+# 17. DATABASE DESIGN
+
+Design/reuse database entities required by your features.
+
+Potential entities:
+
+```text
+User
+StudentProfile
+CompanyProfile
+Resume
+Skill
+Role
+Opportunity
+ResumeSkill
+RoleSkill
+SkillGap
+MatchResult
+Roadmap
+Schedule
+InterviewSession
+InterviewQuestion
+InterviewEvaluation
+SkillGraph
+```
+
+Do NOT create every entity blindly.
+
+Only create entities required by the actual implementation.
+
+Reuse Dev 1's entities when appropriate.
+
+Avoid duplicate representations of:
+
+```text
+User
+Role
+Opportunity
+Skill
+Roadmap
+```
+
+---
+
+# 18. API DESIGN
+
+Create clean backend endpoints for your features.
+
+Conceptually:
+
+```text
+/api/skills/...
+/api/resume/...
+/api/matching/...
+/api/planner/...
+/api/interview/...
+/api/skill-graph/...
+```
+
+Example:
+
+```text
+POST /api/resume/analyze
+POST /api/resume/match
+POST /api/skill-gap/analyze
+POST /api/planner/generate
+POST /api/interview/start
+POST /api/interview/evaluate
+GET  /api/skill-graph/{role}
+```
+
+These are examples only.
+
+Use the project's existing API conventions.
+
+Do not create duplicate endpoints.
+
+---
+
+# 19. FRONTEND CONTRACT
+
+For every API exposed to Dev 3/Dev 4, clearly define:
+
+```text
+Endpoint
+Method
+Authentication
+Request
+Response
+Errors
+```
+
+Example:
+
+```text
+POST /api/skill-gap/analyze
+
+Request:
+{
+  "resume_id": "...",
+  "target_role": "..."
+}
+
+Response:
+{
+  "coverage_score": 78,
+  "existing_skills": [],
+  "missing_skills": [],
+  "weak_skills": []
+}
+```
+
+Keep contracts stable.
+
+Frontend developers should be able to integrate without reading internal backend implementation.
+
+---
+
+# 20. ML / AI IMPLEMENTATION
+
+If ML/NLP is required:
+
+First inspect the existing project for:
+
+* Models
+* Training data
+* Training scripts
+* NLP libraries
+* Embedding systems
+* LLM integrations
+* Existing inference pipelines
+
+Reuse them where appropriate.
+
+Do not introduce a completely new ML architecture unnecessarily.
+
+Preferred:
+
+```text
+Existing Model
+ ↓
+Reusable Inference Service
+ ↓
+Feature APIs
+```
+
+If model training is explicitly required, keep:
+
+```text
+data/
+training/
+models/
+inference/
+```
+
+logically separated.
+
+---
+
+# 21. AI COST CONTROL
+
+AI features must be designed efficiently.
+
+Avoid sending unnecessarily large prompts or resumes repeatedly.
+
+Prefer:
+
+```text
+Resume
+ ↓
+Extract once
+ ↓
+Structured profile
+ ↓
+Reuse profile
+```
+
+instead of:
+
+```text
+Every API
+ ↓
+Reprocess entire resume
+ ↓
+AI call
+```
+
+Cache/reuse structured information where appropriate.
+
+Do not make repeated AI calls for information already available locally.
+
+---
+
+# 22. ERROR HANDLING
+
+All APIs should provide consistent errors.
+
+Example:
+
+```json
+{
+  "error": {
+    "code": "INVALID_RESUME",
+    "message": "Unable to process the provided resume."
+  }
+}
+```
+
+Do not expose:
+
+* Stack traces
+* API keys
+* Internal paths
+* Database credentials
+* Sensitive infrastructure details
+
+---
+
+# 23. VALIDATION
+
+Test each feature independently.
+
+```text
+Skill Gap
+→ PASS/FAIL
+
+Resume Matching
+→ PASS/FAIL
+
+Timetable Planner
+→ PASS/FAIL
+
+AI HR
+→ PASS/FAIL
+
+Skill Graph
+→ PASS/FAIL
+```
+
+Then test their integration:
+
+```text
+Resume
+ ↓
+Skill Extraction
+ ↓
+Skill Gap
+ ↓
+Resume Matching
+ ↓
+Skill Graph
+ ↓
+Timetable
+ ↓
+Interview Preparation
+```
+
+The features should share consistent data.
+
+---
+
+# 24. MULTI-DEVELOPER SAFETY
+
+Since multiple developers work simultaneously:
+
+### DO:
+
+* Keep your code inside your assigned backend modules.
+* Use modular services.
+* Define stable API contracts.
+* Minimize changes to shared files.
+* Clearly document dependencies on Dev 1.
+* Keep database changes organized.
+* Avoid circular dependencies.
+* Avoid modifying frontend files.
+
+### DO NOT:
+
+* Modify Dev 3's React code.
+* Modify Dev 4's frontend work.
+* Rewrite Dev 1's integration.
+* Rename unrelated project files.
+* Change global architecture without necessity.
+* Add unrelated features.
+
+---
+
+# 25. CODE QUALITY
+
+Your backend should be:
+
+```text
+Modular
+Testable
+Maintainable
+Scalable
+Secure
+Documented
+```
+
+Use appropriate separation:
+
+```text
+routes/
+schemas/
+models/
+services/
+repositories/
+ml/
+utils/
+config/
+tests/
+```
+
+Avoid giant files containing all business logic.
+
+---
+
+# 26. TOKEN-EFFICIENCY RULES
+
+Use minimum tokens and computation.
+
+### DO:
+
+* Inspect the project tree first.
+* Search for existing implementations.
+* Reuse existing models/services.
+* Read only relevant files.
+* Modify only necessary files.
+* Maintain an internal task ledger.
+* Run targeted tests.
+* Reuse extracted resume/skill data.
+
+### DO NOT:
+
+* Dump entire files.
+* Re-read unchanged files.
+* Rebuild Dev 1's work.
+* Touch frontend.
+* Add speculative features.
+* Create unnecessary abstractions.
+* Train unnecessary ML models.
+* Make unnecessary AI calls.
+* Generate massive test datasets.
+
+---
+
+# 27. IMPLEMENTATION ORDER
+
+Execute in this order:
+
+```text
+PHASE 1
+Understand existing backend
+        ↓
+PHASE 2
+Identify Dev 1 integration interfaces
+        ↓
+PHASE 3
+Design shared skill intelligence
+        ↓
+PHASE 4
+Resume processing
+        ↓
+PHASE 5
+Skill Gap Radar
+        ↓
+PHASE 6
+Resume Matching
+        ↓
+PHASE 7
+Skill Graph
+        ↓
+PHASE 8
+Internship Planner
+        ↓
+PHASE 9
+AI HR
+        ↓
+PHASE 10
+Integration
+        ↓
+PHASE 11
+Testing
+        ↓
+PHASE 12
+API documentation / handoff
+```
+
+Adjust ordering if the existing architecture requires another dependency order.
+
+---
+
+# 28. CHANGE LEDGER
+
+Maintain:
+
+```text
+C001 — Resume processing service
+C002 — Skill extraction service
+C003 — Skill gap API
+C004 — Resume matching API
+C005 — Skill graph API
+C006 — Internship planner
+C007 — AI HR service
+```
+
+For every change:
+
+```text
+Change
+Reason
+Files
+Dependency
+Status
+```
+
+Do not make changes without a clear purpose.
+
+---
+
+# 29. FINAL HANDOFF TO DEV 3 & DEV 4
+
+At completion, provide a concise frontend integration contract.
+
+Example:
+
+```text
+FEATURE: Skill Gap Radar
+
+Endpoint:
+POST /api/skill-gap/analyze
+
+Input:
+...
+
+Output:
+...
+
+Authentication:
+...
+
+Possible Errors:
+...
+```
+
+Repeat for:
+
+```text
+Resume Matching
+Internship Planner
+AI HR
+Skill Graph
+```
+
+This is the primary interface between your work and the frontend developers.
+
+---
+
+# 30. FINAL VALIDATION
+
+Before declaring completion:
+
+```text
+[ ] Skill Gap Radar works
+[ ] Resume Matching works
+[ ] Internship Planner works
+[ ] AI HR works
+[ ] Skill Graph data works
+[ ] Shared skill intelligence works
+[ ] APIs are consistent
+[ ] Database integration works
+[ ] ML/AI integration works where required
+[ ] Dev 1 interfaces are respected
+[ ] No frontend files modified
+[ ] No unrelated features added
+[ ] No duplicate services created
+[ ] No secrets committed
+[ ] Tests pass
+[ ] Frontend API contracts documented
+```
+
+---
+
+# 31. FINAL REPORT
+
+Keep the final response concise.
+
+Return:
+
+## DEV 2 COMPLETION
+
+```text
+Skill Gap Radar: PASS/FAIL
+Resume Matching: PASS/FAIL
+Internship Planner: PASS/FAIL
+AI HR: PASS/FAIL
+Skill Graph: PASS/FAIL
+Integration: PASS/FAIL
+Tests: PASS/FAIL
+```
+
+## FILES/MODULES CREATED OR MODIFIED
+
+List only relevant files.
+
+## API CONTRACTS
+
+List the endpoints required by Dev 3/Dev 4.
+
+## DEV 1 DEPENDENCIES
+
+List exactly what your implementation expects from Dev 1.
+
+## DATABASE CHANGES
+
+List relevant entities/migrations.
+
+## ML/AI COMPONENTS
+
+List models/services used.
+
+## REMAINING BLOCKERS
+
+Only genuine blockers.
+
+---
+
+# ABSOLUTE RULES
+
+1. **You are Developer 2.**
+2. **Backend only.**
+3. **Implement all five assigned feature groups.**
+4. **Do not touch the React frontend.**
+5. **Do not rebuild Dev 1's Unstop/roadmap.sh integration.**
+6. **Consume Dev 1's services through defined interfaces.**
+7. **Do not interfere with Dev 3 or Dev 4.**
+8. **Reuse existing project architecture whenever possible.**
+9. **Do not duplicate shared entities/services.**
+10. **Build reusable skill intelligence rather than five disconnected implementations.**
+11. **Make AI/ML functionality modular and efficient.**
+12. **Do not make unnecessary AI calls.**
+13. **Do not invent unrelated features.**
+14. **Do not change working code without a reason.**
+15. **Keep APIs stable and frontend-friendly.**
+16. **Use consistent schemas and error handling.**
+17. **Minimize token, compute, and code usage.**
+18. **Test features individually and together.**
+19. **Keep all work modular so other developers can integrate it safely.**
+20. **Leave the project in a state where Dev 3/Dev 4 can immediately consume your APIs.**
+
+# PRIMARY OBJECTIVE
+
+> **Build the complete Skill Match feature backend assigned to Developer 2 — Skill Gap Radar, Resume Matching, Internship Timetable Planner, AI HR, and Visual Skill Graph — while cleanly integrating with Dev 1's platform foundation, maintaining shared data consistency, exposing stable APIs for Dev 3/Dev 4, and touching nothing outside your assigned backend scope.**
+
+**Do not build the frontend. Do not rebuild Unstop/roadmap.sh. Do not invent additional features. Build the feature backend, integrate it cleanly, test it, and hand off clear API contracts.**

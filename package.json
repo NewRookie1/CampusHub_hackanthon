@@ -1,0 +1,15 @@
+{
+  "name": "skill-switch",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Skill Switch - AI-powered skill matching platform",
+  "scripts": {
+    "dev": "cd backend && npm run dev",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "test": "cd backend && npm test",
+    "prisma:generate": "cd backend && npm run prisma:generate",
+    "prisma:migrate": "cd backend && npm run prisma:migrate",
+    "prisma:studio": "cd backend && npm run prisma:studio"
+  }
+}
